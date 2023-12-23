@@ -1,0 +1,59 @@
+services:
+  eureka-service:
+    container_name: 'eureka-service'
+    image: openjdk:21
+    volumes:
+      - ./eureka-service:/app
+    ports:
+      - '8761:8761'
+    working_dir: /app
+    entrypoint: [ 'sh', '-c', "sed -i -e 's/\r$//' ./mvnw && chmod u+x ./mvnw && ./mvnw spring-boot:run" ]
+
+  gateway-service:
+    container_name: 'gateway-service'
+    image: openjdk:21
+    volumes:
+      - ./gateway-service:/app
+    ports:
+      - '8080:8080'
+    working_dir: /app
+    entrypoint: [ 'sh', '-c', "sed -i -e 's/\r$//' ./mvnw && chmod u+x ./mvnw && ./mvnw spring-boot:run" ]
+
+  car-service:
+    container_name: 'car-service'
+    image: openjdk:21
+    volumes:
+      - ./car-service:/app
+    working_dir: /app
+    entrypoint: [ 'sh', '-c', "sed -i -e 's/\r$//' ./mvnw && chmod u+x ./mvnw && ./mvnw spring-boot:run" ]
+    depends_on:
+      - car-db
+      - eureka-service
+      - gateway-service
+      - client-service
+  car-db:
+    container_name: 'car-db'
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_DATABASE: car-service
+
+  client-service:
+    container_name: 'client-service'
+    image: openjdk:21
+    volumes:
+      - ./client-service:/app
+    working_dir: /app
+    entrypoint: [ 'sh', '-c', "sed -i -e 's/\r$//' ./mvnw && chmod u+x ./mvnw && ./mvnw spring-boot:run" ]
+    depends_on:
+      - client-db
+      - eureka-service
+      - gateway-service
+  client-db:
+    container_name: 'client-db'
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_DATABASE: client-service

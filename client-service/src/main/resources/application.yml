@@ -1,0 +1,17 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: client-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    url: jdbc:mysql://client-db:3306/client-service
+    username: root
+    password:
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-service:8761/eureka
